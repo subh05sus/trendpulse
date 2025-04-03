@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
-import type { Platform, Sentiment } from "@prisma/client";
 
+export type Platform = "YOUTUBE" | "REDDIT" | "TWITTER";
+export type Sentiment = "POSITIVE" | "NEUTRAL" | "NEGATIVE";
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
 export const prisma = globalForPrisma.prisma || new PrismaClient();
