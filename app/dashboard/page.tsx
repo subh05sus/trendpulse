@@ -43,7 +43,7 @@ export default async function DashboardPage() {
   });
 
   // Flatten trends from all searches
-  const allTrends = searches.flatMap((search) => search.trends);
+  const allTrends: any[] = searches.flatMap((search) => search.trends);
 
   return (
     <div className="min-h-screen flex flex-col">
