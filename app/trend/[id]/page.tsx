@@ -58,13 +58,13 @@ async function TrendDetail({ id }: { id: string }) {
     notFound();
   }
 
-  const platformColors = {
+  const platformColors: any = {
     YOUTUBE: "bg-red-100 text-red-800",
     REDDIT: "bg-orange-100 text-orange-800",
     TWITTER: "bg-blue-100 text-blue-800",
   };
 
-  const sentimentColors = {
+  const sentimentColors: any = {
     POSITIVE: "bg-green-100 text-green-800",
     NEUTRAL: "bg-gray-100 text-gray-800",
     NEGATIVE: "bg-red-100 text-red-800",
@@ -74,10 +74,16 @@ async function TrendDetail({ id }: { id: string }) {
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
         <div className="flex flex-wrap gap-2 mb-4">
-          <Badge className={platformColors[trend.platform]} variant="outline">
+          <Badge
+            className={platformColors[trend.platform] as string}
+            variant="outline"
+          >
             {trend.platform.charAt(0) + trend.platform.slice(1).toLowerCase()}
           </Badge>
-          <Badge className={sentimentColors[trend.sentiment]} variant="outline">
+          <Badge
+            className={sentimentColors[trend.sentiment] as string}
+            variant="outline"
+          >
             {trend.sentiment.charAt(0) + trend.sentiment.slice(1).toLowerCase()}
           </Badge>
         </div>
