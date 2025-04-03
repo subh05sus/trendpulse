@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
-import type { Sentiment } from "@prisma/client";
+// Define Sentiment type since it's not exported from @prisma/client
+export type Sentiment = "POSITIVE" | "NEUTRAL" | "NEGATIVE";
 import { redis } from "./redis";
 
 // Initialize the Google Gemini client
