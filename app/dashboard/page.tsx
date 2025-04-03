@@ -1,23 +1,23 @@
-import { redirect } from "next/navigation"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { prisma } from "@/lib/db"
-import { Navbar } from "@/components/navbar"
-import { TrendGrid } from "@/components/trend-grid"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/db";
+import { Navbar } from "@/components/navbar";
+import { TrendGrid } from "@/components/trend-grid";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default async function DashboardPage() {
-  const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/api/auth/signin")
+    redirect("/api/auth/signin");
   }
 
   // Get user's search history
   const searches = await prisma.search.findMany({
     where: {
-      userId: session.user.id,
+      userId: session.user?.id,
     },
     orderBy: {
       createdAt: "desc",
@@ -26,12 +26,12 @@ export default async function DashboardPage() {
     include: {
       trends: true,
     },
-  })
+  });
 
   // Get user's comments
   const comments = await prisma.comment.findMany({
     where: {
-      userId: session.user.id,
+      userId: session.user?.id,
     },
     orderBy: {
       createdAt: "desc",
@@ -40,10 +40,10 @@ export default async function DashboardPage() {
     include: {
       trend: true,
     },
-  })
+  });
 
   // Flatten trends from all searches
-  const allTrends = searches.flatMap((search) => search.trends)
+  const allTrends = searches.flatMap((search) => search.trends);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -65,7 +65,9 @@ export default async function DashboardPage() {
             ) : (
               <div className="text-center py-12 bg-gray-50 rounded-lg">
                 <h3 className="text-xl font-semibold mb-2">No trends yet</h3>
-                <p className="text-gray-600">Search for topics to start discovering trends.</p>
+                <p className="text-gray-600">
+                  Search for topics to start discovering trends.
+                </p>
               </div>
             )}
           </TabsContent>
@@ -77,14 +79,18 @@ export default async function DashboardPage() {
                   <Card key={search.id}>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-lg">
-                        <a href={`/search?q=${encodeURIComponent(search.query)}`} className="hover:text-blue-600">
+                        <a
+                          href={`/search?q=${encodeURIComponent(search.query)}`}
+                          className="hover:text-blue-600"
+                        >
                           {search.query}
                         </a>
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="text-sm text-gray-500">
-                        {new Date(search.createdAt).toLocaleDateString()} • {search.trends.length} trends found
+                        {new Date(search.createdAt).toLocaleDateString()} •{" "}
+                        {search.trends.length} trends found
                       </p>
                     </CardContent>
                   </Card>
@@ -92,8 +98,12 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <div className="text-center py-12 bg-gray-50 rounded-lg">
-                <h3 className="text-xl font-semibold mb-2">No search history</h3>
-                <p className="text-gray-600">Your recent searches will appear here.</p>
+                <h3 className="text-xl font-semibold mb-2">
+                  No search history
+                </h3>
+                <p className="text-gray-600">
+                  Your recent searches will appear here.
+                </p>
               </div>
             )}
           </TabsContent>
@@ -105,14 +115,19 @@ export default async function DashboardPage() {
                   <Card key={comment.id}>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-lg">
-                        <a href={`/trend/${comment.trend.id}`} className="hover:text-blue-600">
+                        <a
+                          href={`/trend/${comment.trend.id}`}
+                          className="hover:text-blue-600"
+                        >
                           {comment.trend.title}
                         </a>
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <p className="mb-2">{comment.content}</p>
-                      <p className="text-sm text-gray-500">{new Date(comment.createdAt).toLocaleDateString()}</p>
+                      <p className="text-sm text-gray-500">
+                        {new Date(comment.createdAt).toLocaleDateString()}
+                      </p>
                     </CardContent>
                   </Card>
                 ))}
@@ -120,13 +135,14 @@ export default async function DashboardPage() {
             ) : (
               <div className="text-center py-12 bg-gray-50 rounded-lg">
                 <h3 className="text-xl font-semibold mb-2">No comments yet</h3>
-                <p className="text-gray-600">Your comments on trends will appear here.</p>
+                <p className="text-gray-600">
+                  Your comments on trends will appear here.
+                </p>
               </div>
             )}
           </TabsContent>
         </Tabs>
       </main>
     </div>
-  )
+  );
 }
-

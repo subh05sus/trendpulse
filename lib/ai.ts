@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { GoogleGenAI } from "@google/genai";
 import type { Sentiment } from "@prisma/client";
 import { redis } from "./redis";

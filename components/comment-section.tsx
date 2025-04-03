@@ -1,56 +1,57 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { useSession } from "next-auth/react"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { formatDistanceToNow } from "date-fns"
-import { Loader2 } from "lucide-react"
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatDistanceToNow } from "date-fns";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
 
 type Comment = {
-  id: string
-  content: string
-  createdAt: string
+  id: string;
+  content: string;
+  createdAt: string;
   user: {
-    name: string | null
-    image: string | null
-  }
-}
+    name: string | null;
+    image: string | null;
+  };
+};
 
 export function CommentSection({ trendId }: { trendId: string }) {
-  const { data: session, status } = useSession()
-  const [comments, setComments] = useState<Comment[]>([])
-  const [newComment, setNewComment] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { data: session, status } = useSession();
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     async function fetchComments() {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
-        const response = await fetch(`/api/comments/${trendId}`)
+        const response = await fetch(`/api/comments/${trendId}`);
         if (response.ok) {
-          const data = await response.json()
-          setComments(data)
+          const data = await response.json();
+          setComments(data);
         }
       } catch (error) {
-        console.error("Error fetching comments:", error)
+        console.error("Error fetching comments:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     }
 
-    fetchComments()
-  }, [trendId])
+    fetchComments();
+  }, [trendId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newComment.trim() || !session) return
+    e.preventDefault();
+    if (!newComment.trim() || !session) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       const response = await fetch("/api/comments", {
         method: "POST",
@@ -61,28 +62,28 @@ export function CommentSection({ trendId }: { trendId: string }) {
           trendId,
           content: newComment,
         }),
-      })
+      });
 
       if (response.ok) {
-        const comment = await response.json()
+        const comment = await response.json();
         setComments([
           {
             ...comment,
             user: {
-              name: session.user.name,
-              image: session.user.image,
+              name: session?.user?.name || null,
+              image: session?.user?.image || null,
             },
           },
           ...comments,
-        ])
-        setNewComment("")
+        ]);
+        setNewComment("");
       }
     } catch (error) {
-      console.error("Error adding comment:", error)
+      console.error("Error adding comment:", error);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -115,7 +116,7 @@ export function CommentSection({ trendId }: { trendId: string }) {
         <div className="bg-gray-50 p-4 rounded-lg text-center">
           <p className="text-gray-600">Please sign in to join the discussion</p>
           <Button variant="outline" className="mt-2" asChild>
-            <a href="/api/auth/signin">Sign In</a>
+            <Link href="/login">Sign In</Link>
           </Button>
         </div>
       )}
@@ -127,28 +128,37 @@ export function CommentSection({ trendId }: { trendId: string }) {
             <p className="text-gray-500 mt-2">Loading comments...</p>
           </div>
         ) : comments.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No comments yet. Be the first to share your thoughts!</p>
+          <p className="text-gray-500 text-center py-8">
+            No comments yet. Be the first to share your thoughts!
+          </p>
         ) : (
           comments.map((comment) => (
             <div key={comment.id} className="flex gap-4 p-4 rounded-lg border">
               <Avatar>
                 <AvatarImage src={comment.user.image || undefined} />
-                <AvatarFallback>{comment.user.name?.charAt(0) || "U"}</AvatarFallback>
+                <AvatarFallback>
+                  {comment.user.name?.charAt(0) || "U"}
+                </AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-medium">{comment.user.name || "Anonymous"}</h3>
+                  <h3 className="font-medium">
+                    {comment.user.name || "Anonymous"}
+                  </h3>
                   <span className="text-sm text-gray-500">
-                    {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(comment.createdAt), {
+                      addSuffix: true,
+                    })}
                   </span>
                 </div>
-                <p className="text-gray-700 whitespace-pre-line">{comment.content}</p>
+                <p className="text-gray-700 whitespace-pre-line">
+                  {comment.content}
+                </p>
               </div>
             </div>
           ))
         )}
       </div>
     </div>
-  )
+  );
 }
-

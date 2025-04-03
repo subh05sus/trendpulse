@@ -1,38 +1,38 @@
-import { Suspense } from "react"
-import type { Metadata } from "next"
-import { notFound } from "next/navigation"
-import { prisma } from "@/lib/db"
-import { Navbar } from "@/components/navbar"
-import { CommentSection } from "@/components/comment-section"
-import { formatDistanceToNow } from "date-fns"
-import { ExternalLink } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Suspense } from "react";
+// import type { Metadata } from "next"
+import { notFound } from "next/navigation";
+import { prisma } from "@/lib/db";
+import { Navbar } from "@/components/navbar";
+import { CommentSection } from "@/components/comment-section";
+import { formatDistanceToNow } from "date-fns";
+import { ExternalLink } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export const dynamic = "force-dynamic"
+export const dynamic = "force-dynamic";
 
-type TrendPageProps = {
-  params: { id: string }
-}
+// type TrendPageProps = {
+//   params: { id: string };
+// };
 
-export async function generateMetadata({ params }: TrendPageProps): Promise<Metadata> {
-  const trend = await prisma.trend.findUnique({
-    where: { id: params.id },
-  })
+// export async function generateMetadata({ params }: TrendPageProps): Promise<Metadata> {
+//   const trend = await prisma.trend.findUnique({
+//     where: { id: params.id },
+//   })
 
-  if (!trend) {
-    return {
-      title: "Trend Not Found - TrendPulse",
-    }
-  }
+//   if (!trend) {
+//     return {
+//       title: "Trend Not Found - TrendPulse",
+//     }
+//   }
 
-  return {
-    title: `${trend.title} - TrendPulse`,
-    description: trend.content.substring(0, 160),
-  }
-}
+//   return {
+//     title: `${trend.title} - TrendPulse`,
+//     description: trend.content.substring(0, 160),
+//   }
+// }
 
-export default async function TrendPage({ params }: TrendPageProps) {
+export default async function TrendPage({ params }: any) {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -43,7 +43,7 @@ export default async function TrendPage({ params }: TrendPageProps) {
         </Suspense>
       </main>
     </div>
-  )
+  );
 }
 
 async function TrendDetail({ id }: { id: string }) {
@@ -52,23 +52,23 @@ async function TrendDetail({ id }: { id: string }) {
     include: {
       search: true,
     },
-  })
+  });
 
   if (!trend) {
-    notFound()
+    notFound();
   }
 
   const platformColors = {
     YOUTUBE: "bg-red-100 text-red-800",
     REDDIT: "bg-orange-100 text-orange-800",
     TWITTER: "bg-blue-100 text-blue-800",
-  }
+  };
 
   const sentimentColors = {
     POSITIVE: "bg-green-100 text-green-800",
     NEUTRAL: "bg-gray-100 text-gray-800",
     NEGATIVE: "bg-red-100 text-red-800",
-  }
+  };
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -88,7 +88,11 @@ async function TrendDetail({ id }: { id: string }) {
           <div>
             <span>By {trend.authorName || "Unknown author"}</span>
             <span className="mx-2">•</span>
-            <span>{formatDistanceToNow(new Date(trend.publishedAt), { addSuffix: true })}</span>
+            <span>
+              {formatDistanceToNow(new Date(trend.publishedAt), {
+                addSuffix: true,
+              })}
+            </span>
           </div>
           <div>
             <a
@@ -112,7 +116,7 @@ async function TrendDetail({ id }: { id: string }) {
         <CommentSection trendId={trend.id} />
       </div>
     </div>
-  )
+  );
 }
 
 function TrendDetailSkeleton() {
@@ -149,6 +153,5 @@ function TrendDetailSkeleton() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-
