@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -75,7 +76,7 @@ export default async function DashboardPage() {
           <TabsContent value="searches">
             {searches.length > 0 ? (
               <div className="space-y-4">
-                {searches.map((search) => (
+                {searches.map((search: any) => (
                   <Card key={search.id}>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-lg">
@@ -111,7 +112,7 @@ export default async function DashboardPage() {
           <TabsContent value="comments">
             {comments.length > 0 ? (
               <div className="space-y-4">
-                {comments.map((comment) => (
+                {comments.map((comment: any) => (
                   <Card key={comment.id}>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-lg">

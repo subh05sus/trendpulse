@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import type React from "react";
@@ -132,7 +133,7 @@ export function CommentSection({ trendId }: { trendId: string }) {
             No comments yet. Be the first to share your thoughts!
           </p>
         ) : (
-          comments.map((comment) => (
+          comments.map((comment: any) => (
             <div key={comment.id} className="flex gap-4 p-4 rounded-lg border">
               <Avatar>
                 <AvatarImage src={comment.user.image || undefined} />

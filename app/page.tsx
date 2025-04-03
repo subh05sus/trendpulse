@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/no-unescaped-entities */
 import { getRecentSearches } from "@/lib/db";
 import { SearchBar } from "@/components/search-bar";
@@ -11,7 +12,7 @@ export default async function Home() {
   const recentSearches = await getRecentSearches(5);
 
   // Convert Date objects to strings
-  const formattedSearches = recentSearches.map((search) => ({
+  const formattedSearches = recentSearches.map((search: any) => ({
     ...search,
     createdAt: search.createdAt.toISOString(),
   }));

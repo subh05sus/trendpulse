@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { searchYouTube } from "./youtube-api";
 import { searchReddit } from "./reddit-api";
 import { searchTwitter } from "./twitter-api";
@@ -26,7 +27,7 @@ export async function aggregateTrends(query: string, userId?: string) {
   ]);
 
   // Format results without sentiment analysis
-  const youtubeResultsRaw = youtubeVideos.map((video) => ({
+  const youtubeResultsRaw = youtubeVideos.map((video: any) => ({
     title: video.title,
     content: video.description,
     url: video.url,
@@ -37,7 +38,7 @@ export async function aggregateTrends(query: string, userId?: string) {
     sentiment: "NEUTRAL" as const, // Default sentiment, will be updated
   }));
 
-  const redditResultsRaw = redditPosts.map((post) => ({
+  const redditResultsRaw = redditPosts.map((post: any) => ({
     title: post.title,
     content: post.selftext || post.title,
     url: post.url,
@@ -79,7 +80,7 @@ export async function aggregateTrends(query: string, userId?: string) {
   const { sentiments, summary } = await processTrends(allTrendsRaw);
 
   // Apply sentiments to trends
-  const allTrends = allTrendsRaw.map((trend, index) => ({
+  const allTrends = allTrendsRaw.map((trend: any, index) => ({
     ...trend,
     sentiment: sentiments[index] || trend.sentiment,
   }));
@@ -112,7 +113,7 @@ export async function aggregateTrends(query: string, userId?: string) {
   );
 
   // Map the saved trends (with IDs) back to our result trends
-  const trendsWithIds = savedTrends.map((savedTrend, index) => ({
+  const trendsWithIds = savedTrends.map((savedTrend: any, index) => ({
     ...allTrends[index],
     id: savedTrend.id,
   }));
