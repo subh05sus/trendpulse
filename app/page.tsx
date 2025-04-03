@@ -5,7 +5,7 @@ import { RecentSearches } from "@/components/recent-searches";
 import { TrendingTopics } from "@/components/trending-topics";
 import { Navbar } from "@/components/navbar";
 import Link from "next/link";
-import { ArrowRight, TrendingUp, Twitter, YoutubeIcon } from "lucide-react";
+import { ArrowRight, TrendingUp, Twitter } from "lucide-react";
 
 export default async function Home() {
   const recentSearches = await getRecentSearches(5);
@@ -259,19 +259,6 @@ export default async function Home() {
                     About
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    href="/contact"
-                    className="text-gray-400 hover:text-white"
-                  >
-                    Contact Us
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/blog" className="text-gray-400 hover:text-white">
-                    Blog
-                  </Link>
-                </li>
               </ul>
             </div>
 
@@ -280,26 +267,10 @@ export default async function Home() {
               <ul className="space-y-2">
                 <li>
                   <Link
-                    href="/terms"
-                    className="text-gray-400 hover:text-white"
-                  >
-                    Terms of Service
-                  </Link>
-                </li>
-                <li>
-                  <Link
                     href="/privacy"
                     className="text-gray-400 hover:text-white"
                   >
                     Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/cookies"
-                    className="text-gray-400 hover:text-white"
-                  >
-                    Cookie Policy
                   </Link>
                 </li>
               </ul>
