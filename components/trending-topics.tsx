@@ -1,17 +1,73 @@
-import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { TrendingUp } from "lucide-react"
+"use client";
+import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, TrendingUp } from "lucide-react";
+import { useState, useEffect } from "react";
 
-// This would typically come from a backend service that tracks popular searches
-const trendingTopics = [
-  { id: 1, name: "Apple Vision Pro", count: 1243 },
-  { id: 2, name: "Nvidia RTX 4090", count: 982 },
-  { id: 3, name: "Tesla Cybertruck", count: 876 },
-  { id: 4, name: "PlayStation 5 Pro", count: 754 },
-  { id: 5, name: "iPhone 15 Pro", count: 621 },
-]
+interface TrendingTopic {
+  id: number;
+  name: string;
+  count: number;
+}
 
 export function TrendingTopics() {
+  const [trendingTopics, setTrendingTopics] = useState<TrendingTopic[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchTrendingTopics() {
+      try {
+        // Replace with your actual API endpoint
+        const response = await fetch("/api/trending-topics");
+        const data = await response.json();
+        setTrendingTopics(data);
+      } catch (error) {
+        console.error("Failed to fetch trending topics:", error);
+        // Fallback data in case the API fails
+        setTrendingTopics([
+          { id: 1, name: "Apple Vision Pro", count: 1243 },
+          { id: 2, name: "Nvidia RTX 4090", count: 982 },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchTrendingTopics();
+  }, []);
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <TrendingUp size={18} />
+            <span>Trending Topics</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center py-4">
+          <Loader2 className="animate-spin" size={24} />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (trendingTopics.length === 0) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg flex items-center gap-2">
+            <TrendingUp size={18} />
+            <span>Trending Topics</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-center py-4">
+          No trending topics available.
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -29,13 +85,14 @@ export function TrendingTopics() {
                 className="flex items-center justify-between p-2 rounded-md hover:bg-gray-100 transition-colors"
               >
                 <span className="font-medium">{topic.name}</span>
-                <span className="text-sm text-gray-500">{topic.count.toLocaleString()} searches</span>
+                <span className="text-sm text-gray-500">
+                  {topic.count.toLocaleString()} searches
+                </span>
               </Link>
             </li>
           ))}
         </ul>
       </CardContent>
     </Card>
-  )
+  );
 }
-
