@@ -12,11 +12,11 @@ import { authOptions } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-// Fix: Make SearchPage async and await searchParams.q
+// Fix the type definition for searchParams
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: { q: string };
+  searchParams: Promise<{ q: string }>;
 }) {
   // Get the query from search parameters
   const { q } = await searchParams;
