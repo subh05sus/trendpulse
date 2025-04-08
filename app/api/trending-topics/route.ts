@@ -11,7 +11,12 @@ export async function GET() {
   try {
     // Fetch trending topics from Reddit
     const response = await fetch(
-      "https://www.reddit.com/r/technology/hot.json?limit=10"
+      "https://www.reddit.com/r/technology/hot.json?limit=10",
+      {
+        headers: {
+          "User-Agent": "TrendPulse/1.0 (https://trends.subhadip.me)",
+        },
+      }
     );
 
     if (!response.ok) {
@@ -36,7 +41,7 @@ export async function GET() {
     }
 
     return NextResponse.json(redditTopics);
-  } catch (error:any) {
+  } catch (error: any) {
     console.error("Error fetching trending topics:", error);
     return NextResponse.json(
       { error: "Failed to fetch trending topics", details: error.message },
