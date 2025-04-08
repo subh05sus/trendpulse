@@ -12,10 +12,16 @@ import { authOptions } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-export default async function SearchPage({ searchParams }: any) {
-  const query = searchParams.q;
+// Fix: Make SearchPage async and await searchParams.q
+export default async function SearchPage({
+  searchParams,
+}: {
+  searchParams: { q: string };
+}) {
+  // Get the query from search parameters
+  const { q } = await searchParams;
 
-  if (!query) {
+  if (!q) {
     notFound();
   }
 
@@ -29,7 +35,7 @@ export default async function SearchPage({ searchParams }: any) {
         </div>
 
         <Suspense fallback={<SearchResultsSkeleton />}>
-          <SearchResults query={query} />
+          <SearchResults query={q} />
         </Suspense>
       </main>
     </div>
@@ -41,29 +47,42 @@ async function SearchResults({ query }: { query: string }) {
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
 
-  const results = await aggregateTrends(query, userId);
+  try {
+    const results = await aggregateTrends(query, userId);
 
-  if (!results || !results.allTrends || results.allTrends.length === 0) {
+    if (!results || !results.allTrends || results.allTrends.length === 0) {
+      return (
+        <div className="text-center py-16">
+          <h2 className="text-2xl font-bold mb-4">No results found</h2>
+          <p className="text-gray-600">
+            We couldn&apos;t find any trending discussions for &quot;{query}
+            &quot;. Try a different search term.
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-8">
+        <h1 className="text-3xl font-bold">Results for &quot;{query}&quot;</h1>
+
+        <SummaryCard summary={results.summary} query={query} />
+
+        <TrendGrid trends={results.allTrends} />
+      </div>
+    );
+  } catch (error) {
+    console.error("Error in search results:", error);
     return (
       <div className="text-center py-16">
-        <h2 className="text-2xl font-bold mb-4">No results found</h2>
+        <h2 className="text-2xl font-bold mb-4">Error fetching results</h2>
         <p className="text-gray-600">
-          We couldn&apos;t find any trending discussions for &quot;{query}
-          &quot;. Try a different search term.
+          We encountered an error while searching for &quot;{query}
+          &quot;. Please try again later.
         </p>
       </div>
     );
   }
-
-  return (
-    <div className="space-y-8">
-      <h1 className="text-3xl font-bold">Results for &quot;{query}&quot;</h1>
-
-      <SummaryCard summary={results.summary} query={query} />
-
-      <TrendGrid trends={results.allTrends} />
-    </div>
-  );
 }
 
 function SearchResultsSkeleton() {
