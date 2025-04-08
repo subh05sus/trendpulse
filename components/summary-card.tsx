@@ -22,25 +22,25 @@ export function SummaryCard({ summary, query }: SummaryCardProps) {
   const hasBulletPoints = bulletPoints.length > 0;
 
   return (
-    <Card className="bg-blue-50 border-blue-200">
+    <Card className="bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-900">
       <CardHeader className="pb-2">
-        <CardTitle className="text-xl flex items-center gap-2">
-          <Lightbulb className="text-yellow-500" />
-          <span>Key Insights about &quot;{query}&quot;</span>
-        </CardTitle>
+      <CardTitle className="text-xl flex items-center gap-2">
+        <Lightbulb className="text-yellow-500" />
+        <span>Key Insights about &quot;{query}&quot;</span>
+      </CardTitle>
       </CardHeader>
       <CardContent>
-        {hasBulletPoints ? (
-          <ul className="space-y-2 list-disc pl-5">
-            {bulletPoints.map((point: any, index) => (
-              <li key={index} className="text-gray-700">
-                {point}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-700 whitespace-pre-line">{summary}</p>
-        )}
+      {hasBulletPoints ? (
+        <ul className="space-y-2 list-disc pl-5">
+        {bulletPoints.map((point: any, index) => (
+          <li key={index} className="text-gray-700 dark:text-gray-300">
+          {point}
+          </li>
+        ))}
+        </ul>
+      ) : (
+        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">{summary}</p>
+      )}
       </CardContent>
     </Card>
   );

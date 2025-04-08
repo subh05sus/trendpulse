@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-// import type { Metadata } from "next"
 import { notFound } from "next/navigation";
 import { aggregateTrends } from "@/lib/trend-aggregator";
 import { SearchBar } from "@/components/search-bar";
@@ -7,27 +6,11 @@ import { TrendGrid } from "@/components/trend-grid";
 import { SummaryCard } from "@/components/summary-card";
 import { Navbar } from "@/components/navbar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
-
-// type SearchPageProps = {
-//   searchParams: { q?: string };
-// };
-
-// export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
-//   const query = searchParams.q
-
-//   if (!query) {
-//     return {
-//       title: "Search - TrendPulse",
-//     }
-//   }
-
-//   return {
-//     title: `${query} - TrendPulse Search`,
-//     description: `Discover trending discussions about ${query} from YouTube, Reddit, and Twitter.`,
-//   }
-// }
+export const revalidate = 0;
 
 export default async function SearchPage({ searchParams }: any) {
   const query = searchParams.q;
@@ -54,7 +37,11 @@ export default async function SearchPage({ searchParams }: any) {
 }
 
 async function SearchResults({ query }: { query: string }) {
-  const results = await aggregateTrends(query);
+  // Get the user session to pass to search functionality
+  const session = await getServerSession(authOptions);
+  const userId = session?.user?.id;
+
+  const results = await aggregateTrends(query, userId);
 
   if (!results || !results.allTrends || results.allTrends.length === 0) {
     return (
@@ -84,6 +71,7 @@ function SearchResultsSkeleton() {
     <div className="space-y-8">
       <Skeleton className="h-10 w-1/3" />
 
+      {/* Summary card skeleton */}
       <Skeleton className="h-64 w-full" />
 
       <div className="space-y-4">

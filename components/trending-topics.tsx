@@ -83,10 +83,10 @@ export function TrendingTopics() {
             <li key={topic.id}>
               <Link
                 href={`/search?q=${encodeURIComponent(topic.name)}`}
-                className="flex items-center justify-between p-2 rounded-md hover:bg-gray-100 transition-colors"
+                className="flex items-center justify-between p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
-                <span className="font-medium">{topic.name}</span>
-                <span className="text-sm text-gray-500">
+                <span className="font-medium dark:text-gray-200">{topic.name}</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   {topic.count.toLocaleString()} searches
                 </span>
               </Link>

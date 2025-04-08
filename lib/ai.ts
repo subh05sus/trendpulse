@@ -1,13 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
 // Define Sentiment type since it's not exported from @prisma/client
 export type Sentiment = "POSITIVE" | "NEUTRAL" | "NEGATIVE";
-import { redis } from "./redis";
 
 // Initialize the Google Gemini client
 const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
-
-// Cache TTL in seconds (7 days)
-const SENTIMENT_CACHE_TTL = 7 * 24 * 60 * 60;
 
 // Simple sentiment analysis using regex patterns for fallback
 function simpleSentimentAnalysis(text: string): Sentiment {
@@ -31,33 +27,6 @@ export async function processTrends(trends: any[]): Promise<{
 }> {
   if (trends.length === 0) {
     return { sentiments: [], summary: "No trends to analyze." };
-  }
-
-  // Generate a unique cache key for this batch of trends
-  const trendIds = trends
-    .slice(0, 5)
-    .map((t) => t.url?.substring(0, 20) || "")
-    .join("-");
-  const cacheKey = `trends:${Buffer.from(trendIds)
-    .toString("base64")
-    .substring(0, 50)}`;
-
-  // Check cache first
-  const cachedResult = await redis.get(cacheKey);
-  if (cachedResult) {
-    try {
-      const parsed =
-        typeof cachedResult === "string"
-          ? JSON.parse(cachedResult)
-          : cachedResult;
-
-      // Ensure the result has the required properties
-      if (parsed && "sentiments" in parsed && "summary" in parsed) {
-        return parsed as { sentiments: Sentiment[]; summary: string };
-      }
-    } catch (error) {
-      console.error("Error parsing cached result:", error);
-    }
   }
 
   // Prepare texts for sentiment analysis
@@ -135,12 +104,7 @@ SUMMARY:
       summary = summaryMatch[1].trim();
     }
 
-    const result2 = { sentiments, summary };
-
-    // Cache the result
-    await redis.set(cacheKey, JSON.stringify(result2), { ex: 3600 }); // Cache for 1 hour
-
-    return result2;
+    return { sentiments, summary };
   } catch (error) {
     console.error("Error processing trends:", error);
     // Return fallback results
@@ -153,23 +117,8 @@ SUMMARY:
 
 // Single text sentiment analysis (for backward compatibility)
 export async function analyzeSentiment(text: string): Promise<Sentiment> {
-  // Check cache first
-  const cacheKey = `sentiment:${Buffer.from(text)
-    .toString("base64")
-    .substring(0, 100)}`;
-  const cachedSentiment = await redis.get(cacheKey);
-
-  if (cachedSentiment) {
-    return cachedSentiment as Sentiment;
-  }
-
-  // Use fallback sentiment analysis
-  const sentiment = simpleSentimentAnalysis(text);
-
-  // Cache the result
-  await redis.set(cacheKey, sentiment, { ex: SENTIMENT_CACHE_TTL });
-
-  return sentiment;
+  // Use sentiment analysis
+  return simpleSentimentAnalysis(text);
 }
 
 // Batch sentiment analysis (for backward compatibility)
@@ -183,24 +132,9 @@ export async function batchAnalyzeSentiment(
 export async function generateSummary(trends: any[]): Promise<string> {
   if (trends.length === 0) return "No trends to summarize.";
 
-  // Check cache first
-  const cacheKey = `summary:${trends.length}:${trends
-    .slice(0, 3)
-    .map((t) => t.id)
-    .join("-")}`;
-  const cachedSummary = await redis.get(cacheKey);
-
-  if (cachedSummary) {
-    return cachedSummary as string;
-  }
-
   try {
-    // Process in a single call if not cached
+    // Process in a single call
     const { summary } = await processTrends(trends);
-
-    // Cache the summary
-    await redis.set(cacheKey, summary, { ex: 3600 });
-
     return summary;
   } catch (error) {
     console.error("Error generating summary:", error);

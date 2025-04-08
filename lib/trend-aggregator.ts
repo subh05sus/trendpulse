@@ -3,19 +3,12 @@ import { searchYouTube } from "./youtube-api";
 import { searchReddit } from "./reddit-api";
 import { searchTwitter } from "./twitter-api";
 import { saveSearch, saveTrend } from "./db";
-import { cacheSearch, getCachedSearch } from "./redis";
 import { processTrends } from "./ai";
 
 // Limit the number of results to process to avoid API rate limits
 const MAX_RESULTS_PER_PLATFORM = 10;
 
 export async function aggregateTrends(query: string, userId?: string) {
-  // Check cache first
-  const cached = await getCachedSearch(query);
-  if (cached) {
-    return cached;
-  }
-
   // Create a new search record
   const search = await saveSearch(query, userId);
 
@@ -85,16 +78,6 @@ export async function aggregateTrends(query: string, userId?: string) {
     sentiment: sentiments[index] || trend.sentiment,
   }));
 
-  // // Split back into platform-specific arrays
-  // const youtubeResults = allTrends.slice(0, youtubeResultsRaw.length);
-  // const redditResults = allTrends.slice(
-  //   youtubeResultsRaw.length,
-  //   youtubeResultsRaw.length + redditResultsRaw.length
-  // );
-  // const twitterResults = allTrends.slice(
-  //   youtubeResultsRaw.length + redditResultsRaw.length
-  // );
-
   // Save trends to database
   const savedTrends = await Promise.all(
     allTrends.map((trend) =>
@@ -142,9 +125,6 @@ export async function aggregateTrends(query: string, userId?: string) {
     },
     allTrends: trendsWithIds,
   };
-
-  // Cache the results
-  await cacheSearch(query, result);
 
   return result;
 }

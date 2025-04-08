@@ -1,24 +1,24 @@
-import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Clock } from "lucide-react"
+import Link from "next/link";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Clock } from "lucide-react";
 
 type RecentSearch = {
-  id: string
-  query: string
-  createdAt: string
+  id: string;
+  query: string;
+  createdAt: string;
   trends: Array<{
-    id: string
-    platform: "YOUTUBE" | "REDDIT" | "TWITTER"
-  }>
-}
+    id: string;
+    platform: "YOUTUBE" | "REDDIT" | "TWITTER";
+  }>;
+};
 
 type RecentSearchesProps = {
-  searches: RecentSearch[]
-}
+  searches: RecentSearch[];
+};
 
 export function RecentSearches({ searches }: RecentSearchesProps) {
   if (!searches || searches.length === 0) {
-    return null
+    return null;
   }
 
   return (
@@ -35,41 +35,49 @@ export function RecentSearches({ searches }: RecentSearchesProps) {
             // Count platforms
             const platforms = search.trends.reduce(
               (acc, trend) => {
-                acc[trend.platform.toLowerCase() as "youtube" | "reddit" | "twitter"] += 1
-                return acc
+                acc[
+                  trend.platform.toLowerCase() as
+                    | "youtube"
+                    | "reddit"
+                    | "twitter"
+                ] += 1;
+                return acc;
               },
-              { youtube: 0, reddit: 0, twitter: 0 },
-            )
+              { youtube: 0, reddit: 0, twitter: 0 }
+            );
 
             return (
               <li key={search.id}>
                 <Link
                   href={`/search?q=${encodeURIComponent(search.query)}`}
-                  className="flex items-center justify-between p-2 rounded-md hover:bg-gray-100 transition-colors"
+                  className="flex items-center justify-between p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
-                  <span className="font-medium">{search.query}</span>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <span className="font-medium dark:text-gray-200">
+                    {search.query}
+                  </span>
+                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                     {platforms.youtube > 0 && (
-                      <span className="bg-red-100 text-red-800 px-2 py-0.5 rounded-full">YT: {platforms.youtube}</span>
+                      <span className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 px-2 py-0.5 rounded-full">
+                        YT: {platforms.youtube}
+                      </span>
                     )}
                     {platforms.reddit > 0 && (
-                      <span className="bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full">
+                      <span className="bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300 px-2 py-0.5 rounded-full">
                         RD: {platforms.reddit}
                       </span>
                     )}
                     {platforms.twitter > 0 && (
-                      <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
+                      <span className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 px-2 py-0.5 rounded-full">
                         TW: {platforms.twitter}
                       </span>
                     )}
                   </div>
                 </Link>
               </li>
-            )
+            );
           })}
         </ul>
       </CardContent>
     </Card>
-  )
+  );
 }
-

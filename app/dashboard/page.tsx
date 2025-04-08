@@ -29,6 +29,21 @@ export default async function DashboardPage() {
     },
   });
 
+  // Remove duplicate search entries (keeping the most recent one for each query)
+  const uniqueSearches = searches.reduce((acc: any[], search: any) => {
+    const existingIndex = acc.findIndex((s) => s.query === search.query);
+    if (existingIndex >= 0) {
+      // If the search query already exists and current one is newer, replace it
+      if (new Date(search.createdAt) > new Date(acc[existingIndex].createdAt)) {
+        acc[existingIndex] = search;
+      }
+    } else {
+      // If it doesn't exist, add it to the array
+      acc.push(search);
+    }
+    return acc;
+  }, []);
+
   // Get user's comments
   const comments = await prisma.comment.findMany({
     where: {
@@ -43,8 +58,18 @@ export default async function DashboardPage() {
     },
   });
 
-  // Flatten trends from all searches
-  const allTrends: any[] = searches.flatMap((search: any) => search.trends);
+  // Flatten trends from all searches and deduplicate by URL (assuming URL is unique for each trend)
+  const allTrendsWithDuplicates: any[] = uniqueSearches.flatMap(
+    (search: any) => search.trends
+  );
+
+  // Deduplicate trends by URL
+  const seenUrls = new Set();
+  const allTrends = allTrendsWithDuplicates.filter((trend: any) => {
+    const isDuplicate = seenUrls.has(trend.url);
+    seenUrls.add(trend.url);
+    return !isDuplicate;
+  });
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -74,9 +99,9 @@ export default async function DashboardPage() {
           </TabsContent>
 
           <TabsContent value="searches">
-            {searches.length > 0 ? (
+            {uniqueSearches.length > 0 ? (
               <div className="space-y-4">
-                {searches.map((search: any) => (
+                {uniqueSearches.map((search: any) => (
                   <Card key={search.id}>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-lg">

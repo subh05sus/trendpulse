@@ -11,14 +11,45 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { TrendingUp, Search, User, LogOut } from "lucide-react";
+import { TrendingUp, Search, User, LogOut, Loader2 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
 
 export function Navbar() {
   const { data: session, status } = useSession();
   const isLoading = status === "loading";
   const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+
+  // Reset loading state when navigation completes
+  useEffect(() => {
+    setIsSearching(false);
+  }, [pathname, searchParams]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      setIsSearching(true);
+
+      // Save the search query to the server via API if the user is logged in
+      if (session?.user?.id) {
+        // We'll use fetch here to call our search API with the query and user ID
+        fetch(`/api/search?q=${encodeURIComponent(searchQuery.trim())}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }).catch((error) => console.error("Error saving search:", error));
+      }
+
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -31,14 +62,23 @@ export function Navbar() {
         </Link>
 
         <div className="flex-1 max-w-md mx-4 hidden md:block">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search for any topic..."
-              className="w-full rounded-full border border-input bg-background px-9 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            />
-          </div>
+          <form onSubmit={handleSearch}>
+            <div className="relative">
+              {isSearching ? (
+                <Loader2 className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground animate-spin" />
+              ) : (
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              )}
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search for any topic..."
+                className="w-full rounded-full border border-input bg-background px-9 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                disabled={isSearching}
+              />
+            </div>
+          </form>
         </div>
 
         <nav className="flex items-center gap-2 sm:gap-4">
