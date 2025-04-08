@@ -11,13 +11,7 @@ export async function GET() {
   try {
     // Fetch trending topics from Reddit
     const response = await fetch(
-      "https://www.reddit.com/r/technology/hot.json?limit=10",
-      {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
-        },
-      }
+      "https://www.reddit.com/r/technology/hot.json?limit=10"
     );
 
     if (!response.ok) {
@@ -25,7 +19,9 @@ export async function GET() {
     }
 
     const data = await response.json();
-
+    if (!data || !data.data || !data.data.children) {
+      throw new Error("Invalid data format from Reddit API");
+    }
     // Transform Reddit data to our TrendingTopic format
     const redditTopics: TrendingTopic[] = data.data.children.map(
       (post: any, index: number) => ({
@@ -34,6 +30,10 @@ export async function GET() {
         count: post.data.score, // Use upvotes as count
       })
     );
+
+    if (!redditTopics.length) {
+      throw new Error("No trending topics found");
+    }
 
     return NextResponse.json(redditTopics);
   } catch (error) {
