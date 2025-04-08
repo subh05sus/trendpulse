@@ -36,10 +36,10 @@ export async function GET() {
     }
 
     return NextResponse.json(redditTopics);
-  } catch (error) {
+  } catch (error:any) {
     console.error("Error fetching trending topics:", error);
     return NextResponse.json(
-      { error: "Failed to fetch trending topics" },
+      { error: "Failed to fetch trending topics", details: error.message },
       { status: 500 }
     );
   }
