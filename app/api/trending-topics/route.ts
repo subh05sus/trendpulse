@@ -14,11 +14,13 @@ export async function GET() {
       "https://www.reddit.com/r/technology/hot.json?limit=10",
       {
         headers: {
-          "User-Agent": "TrendPulse/1.0 (https://trends.subhadip.me)",
+          "User-Agent":
+            "Mozilla/5.0 (compatible; TrendPulseBot/1.0; +https://trends.subhadip.me)",
         },
       }
     );
-
+    console.log("Reddit response status:", response.status); // Debugging line
+    console.log("Reddit response headers:", response.headers); // Debugging line
     if (!response.ok) {
       throw new Error(`Reddit API responded with status: ${response.status}`);
     }
@@ -27,6 +29,7 @@ export async function GET() {
     if (!data || !data.data || !data.data.children) {
       throw new Error("Invalid data format from Reddit API");
     }
+    console.log("Reddit data:", data); // Debugging line
     // Transform Reddit data to our TrendingTopic format
     const redditTopics: TrendingTopic[] = data.data.children.map(
       (post: any, index: number) => ({
