@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { SessionProvider } from "@/components/session-provider";
-
+import { Analytics } from "@vercel/analytics/next";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -28,6 +28,7 @@ export default async function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark">
           <SessionProvider session={session}>{children}</SessionProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
