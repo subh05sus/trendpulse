@@ -22,7 +22,11 @@ export async function GET() {
     console.log("Reddit response status:", response.status); // Debugging line
     console.log("Reddit response headers:", response.headers); // Debugging line
     if (!response.ok) {
-      throw new Error(`Reddit API responded with status: ${response.status}`);
+      throw new Error(
+        `Reddit API responded with status: ${response.status}, ${
+          response.statusText
+        }, ${await response.text()}`
+      );
     }
 
     const data = await response.json();
