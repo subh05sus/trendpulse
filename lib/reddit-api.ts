@@ -20,7 +20,12 @@ export async function searchReddit(
     const response = await fetch(
       `https://www.reddit.com/search.json?q=${encodeURIComponent(
         query
-      )}&sort=relevance&limit=${limit}`
+      )}&sort=relevance&limit=${limit}`,
+      {
+        headers: {
+          "User-Agent": "MyApp/1.0.0 (by u/SubhadipSahaOfficial)",
+        },
+      }
     );
 
     if (!response.ok) {

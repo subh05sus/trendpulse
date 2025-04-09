@@ -49,8 +49,7 @@ export async function GET() {
         "https://www.reddit.com/r/technology/hot.json?limit=10",
         {
           headers: {
-            "User-Agent":
-              "Mozilla/5.0 (compatible; TrendPulseBot/1.0; +https://trends.subhadip.me)",
+            "User-Agent": "MyApp/1.0.0 (by u/SubhadipSahaOfficial)",
           },
         }
       );
