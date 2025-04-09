@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { getRedditAccessToken } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export interface TrendingTopic {
@@ -44,49 +45,62 @@ const mockTrendingTopics: TrendingTopic[] = [
 export async function GET() {
   try {
     // Fetch trending topics from Reddit
-    try {
-      const response = await fetch(
-        "https://www.reddit.com/r/technology/hot.json?limit=10",
-        {
-          headers: {
-            "User-Agent": "MyApp/1.0.0 (by u/SubhadipSahaOfficial)",
-          },
-        }
-      );
-      console.log("Reddit response status:", response.status);
-      console.log("Reddit response headers:", response.headers);
+    const token = await getRedditAccessToken();
 
-      if (!response.ok) {
-        console.log("Reddit API failed, using mock data");
-        return NextResponse.json(mockTrendingTopics);
-      }
-
-      const data = await response.json();
-      if (!data || !data.data || !data.data.children) {
-        console.log("Invalid data format from Reddit API, using mock data");
-        return NextResponse.json(mockTrendingTopics);
-      }
-
-      console.log("Reddit data:", data);
-      // Transform Reddit data to our TrendingTopic format
-      const redditTopics: TrendingTopic[] = data.data.children.map(
-        (post: any, index: number) => ({
-          id: index + 1,
-          name: post.data.title.substring(0, 50), // Limit title length
-          count: post.data.score, // Use upvotes as count
-        })
-      );
-
-      if (!redditTopics.length) {
-        console.log("No trending topics found, using mock data");
-        return NextResponse.json(mockTrendingTopics);
-      }
-
-      return NextResponse.json(redditTopics);
-    } catch (fetchError: any) {
-      console.log("Error fetching from Reddit:", fetchError.message);
+    if (!token) {
+      console.log("Failed to get Reddit access token, using mock data");
       return NextResponse.json(mockTrendingTopics);
     }
+
+    const url = "https://oauth.reddit.com/r/technology/hot?limit=10";
+
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent": "MyApp/1.0.0 (by u/SubhadipSahaOfficial)",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log(
+      `[Reddit] Response status: ${response.status} ${response.statusText}`
+    );
+
+    if (!response.ok) {
+      console.error(
+        `[Reddit] API error: ${response.status} ${response.statusText}`
+      );
+      return NextResponse.json(mockTrendingTopics);
+    }
+
+    const data = await response.json();
+
+    if (!data.data || !data.data.children) {
+      console.warn(
+        "[Reddit] Unexpected response structure:",
+        JSON.stringify(data).substring(0, 200) + "..."
+      );
+      return NextResponse.json(mockTrendingTopics);
+    }
+
+    // Transform Reddit data to our TrendingTopic format
+    const redditTopics: TrendingTopic[] = data.data.children.map(
+      (post: any, index: number) => ({
+        id: index + 1,
+        name: post.data.title.substring(0, 50), // Limit title length
+        count: post.data.score, // Use upvotes as count
+      })
+    );
+
+    console.log(
+      `[Reddit] Successfully processed ${redditTopics.length} topics`
+    );
+
+    if (!redditTopics.length) {
+      console.log("No trending topics found, using mock data");
+      return NextResponse.json(mockTrendingTopics);
+    }
+
+    return NextResponse.json(redditTopics);
   } catch (error: any) {
     console.error("Error in GET handler:", error);
     return NextResponse.json(mockTrendingTopics);
